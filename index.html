@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Delivery App</title>
+</head>
+<body>
+    <h1>Food Delivery App</h1>
+    <form id="pricingForm">
+        <label for="zone">Zone:</label>
+        <input type="text" id="zone" name="zone" required><br><br>
+        
+        <label for="organization_id">Organization ID:</label>
+        <input type="text" id="organization_id" name="organization_id" required><br><br>
+        
+        <label for="total_distance">Total Distance:</label>
+        <input type="number" id="total_distance" name="total_distance" required><br><br>
+        
+        <label for="item_type">Item Type:</label>
+        <select id="item_type" name="item_type" required>
+            <option value="perishable">Perishable</option>
+            <option value="non-perishable">Non-Perishable</option>
+        </select><br><br>
+        
+        <button type="submit">Calculate Total Price</button>
+    </form>
+
+    <div id="totalPrice"></div>
+
+    <script>
+        document.getElementById('pricingForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const requestData = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('http://localhost:3000/api/pricing/calculate-price', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error fetching data');
+                }
+
+                const responseData = await response.json();
+
+                if (responseData.total_price === null || responseData.total_price === undefined) {
+                    throw new Error('Total price is null or undefined');
+                }
+
+                document.getElementById('totalPrice').innerText = `Total Price: ${responseData.total_price}`;
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+</html>
